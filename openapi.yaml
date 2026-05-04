@@ -1,0 +1,886 @@
+openapi: 3.0.3
+info:
+  title: JSONCargo API
+  description: >
+    Real-time container tracking, vessel tracking, port lookup, and terminal data
+    for 11 major shipping lines. Full documentation at https://jsoncargo.com/documentation-api/
+  version: 1.0.0
+  contact:
+    url: https://jsoncargo.com
+    email: support@jsoncargo.com
+
+servers:
+  - url: http://api.jsoncargo.com/api/v1
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+
+  schemas:
+
+    ErrorResponse:
+      type: object
+      properties:
+        title:
+          type: string
+
+    ContainerData:
+      type: object
+      properties:
+        container_id:
+          type: string
+          example: "MEDU9091004"
+        container_type:
+          type: string
+          example: "40' HIGH CUBE REEFER"
+        container_status:
+          type: string
+          example: "Empty received at CY"
+        shipping_line_name:
+          type: string
+          example: "Mediterranean Shipping Company"
+        shipping_line_id:
+          type: string
+          example: "0015"
+        tare:
+          type: number
+          format: float
+          example: 3900
+        shipped_from:
+          type: string
+        shipped_from_terminal:
+          type: string
+        shipped_to:
+          type: string
+        shipped_to_terminal:
+          type: string
+        atd_origin:
+          type: string
+          example: "2024-07-09 00:00"
+        eta_final_destination:
+          type: string
+          example: "2024-08-10 00:00"
+        last_location:
+          type: string
+        last_location_terminal:
+          type: string
+        next_location:
+          type: string
+        next_location_terminal:
+          type: string
+        atd_last_location:
+          type: string
+        eta_next_destination:
+          type: string
+        timestamp_of_last_location:
+          type: string
+        last_movement_timestamp:
+          type: string
+        loading_port:
+          type: string
+        discharging_port:
+          type: string
+        customs_clearance:
+          type: string
+        bill_of_lading:
+          type: string
+        last_vessel_name:
+          type: string
+        last_voyage_number:
+          type: string
+        current_vessel_name:
+          type: string
+        current_voyage_number:
+          type: string
+        last_updated:
+          type: string
+
+    ContainerResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ContainerData'
+
+    BolData:
+      type: object
+      properties:
+        bill_of_lading:
+          type: string
+          example: "SZPE72846000"
+        shipping_line_name:
+          type: string
+          example: "Hyundai Merchant Marine"
+        shipping_line_id:
+          type: string
+          example: "0012"
+        associated_containers:
+          type: integer
+          example: 16
+        associated_container_numbers:
+          type: array
+          items:
+            type: string
+          example: ["CAIU9933760", "HMMU6053862"]
+        last_updated:
+          type: string
+          example: "2025-03-28 04:09"
+
+    BolResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/BolData'
+
+    VesselBasicData:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        mmsi:
+          type: string
+        imo:
+          type: string
+        eni:
+          type: string
+          nullable: true
+        country_iso:
+          type: string
+        type:
+          type: string
+        type_specific:
+          type: string
+        lat:
+          type: number
+          format: float
+        lon:
+          type: number
+          format: float
+        speed:
+          type: number
+          format: float
+        course:
+          type: number
+          format: float
+        heading:
+          type: number
+          format: float
+        navigation_status:
+          type: string
+          nullable: true
+        destination:
+          type: string
+        last_position_epoch:
+          type: integer
+        last_position_UTC:
+          type: string
+        eta_epoch:
+          type: integer
+          nullable: true
+        eta_UTC:
+          type: string
+          nullable: true
+
+    VesselBasicResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/VesselBasicData'
+
+    VesselProData:
+      allOf:
+        - $ref: '#/components/schemas/VesselBasicData'
+        - type: object
+          properties:
+            current_draught:
+              type: number
+              format: float
+            dest_port_uuid:
+              type: string
+            dest_port:
+              type: string
+            dest_port_unlocode:
+              type: string
+            dep_port_uuid:
+              type: string
+            dep_port:
+              type: string
+            dep_port_unlocode:
+              type: string
+            atd_epoch:
+              type: integer
+            atd_UTC:
+              type: string
+            timezone_offset_sec:
+              type: integer
+            timezone:
+              type: string
+
+    VesselProResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/VesselProData'
+
+    VesselBulkResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            total:
+              type: integer
+            vessels:
+              type: array
+              items:
+                $ref: '#/components/schemas/VesselBasicData'
+
+    VesselStaticData:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        name_ais:
+          type: string
+          nullable: true
+        mmsi:
+          type: string
+          nullable: true
+        imo:
+          type: string
+          nullable: true
+        eni:
+          type: string
+          nullable: true
+        country_iso:
+          type: string
+        country_name:
+          type: string
+          nullable: true
+        callsign:
+          type: string
+          nullable: true
+        type:
+          type: string
+        type_specific:
+          type: string
+        gross_tonnage:
+          type: integer
+          nullable: true
+        deadweight:
+          type: integer
+          nullable: true
+        teu:
+          type: integer
+          nullable: true
+        liquid_gas:
+          type: integer
+          nullable: true
+        length:
+          type: number
+          format: float
+        breadth:
+          type: number
+          format: float
+        draught_avg:
+          type: number
+          format: float
+          nullable: true
+        draught_max:
+          type: number
+          format: float
+          nullable: true
+        speed_avg:
+          type: number
+          format: float
+          nullable: true
+        speed_max:
+          type: number
+          format: float
+          nullable: true
+        year_built:
+          type: integer
+          nullable: true
+        is_navaid:
+          type: boolean
+        home_port:
+          type: string
+          nullable: true
+
+    VesselFinderResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/VesselStaticData'
+
+    VesselSpecsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/VesselStaticData'
+
+    PortData:
+      type: object
+      properties:
+        uuid:
+          type: string
+        port_name:
+          type: string
+        country_iso:
+          type: string
+        country_name:
+          type: string
+        unlocode:
+          type: string
+        port_type:
+          type: string
+        lat:
+          type: number
+          format: float
+        lon:
+          type: number
+          format: float
+        area_lvl1:
+          type: string
+        area_lvl2:
+          type: string
+
+    PortResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortData'
+
+    TerminalData:
+      type: object
+      properties:
+        unlocode:
+          type: string
+        alt_unlocode:
+          type: string
+        code:
+          type: string
+        terminal_name:
+          type: string
+        company_name:
+          type: string
+        lat:
+          type: number
+          format: float
+        lon:
+          type: number
+          format: float
+        url:
+          type: string
+        address:
+          type: string
+
+    TerminalResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TerminalData'
+
+    ApiKeyStatsData:
+      type: object
+      properties:
+        plan:
+          type: string
+          example: "MARINER"
+        requests_total:
+          type: integer
+          example: 2000
+        requests_made:
+          type: integer
+          example: 6
+        requests_available:
+          type: integer
+          example: 1994
+
+    ApiKeyStatsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ApiKeyStatsData'
+
+  parameters:
+    ShippingLineOptional:
+      name: shipping_line
+      in: query
+      required: false
+      description: Required when the container prefix is shared across carriers.
+      schema:
+        type: string
+        enum: [MAERSK, HAPAG_LLOYD, HMM, ONE, EVERGREEN, MSC, CMA_CGM, COSCO, ZIM, YANG_MING, PIL]
+
+    ShippingLineRequired:
+      name: shipping_line
+      in: query
+      required: true
+      description: Always required for BOL lookups.
+      schema:
+        type: string
+        enum: [MAERSK, HAPAG_LLOYD, HMM, ONE, EVERGREEN, MSC, CMA_CGM, COSCO, ZIM, YANG_MING, PIL]
+
+    VesselUuid:
+      name: uuid
+      in: query
+      required: false
+      schema:
+        type: string
+
+    VesselMmsi:
+      name: mmsi
+      in: query
+      required: false
+      schema:
+        type: string
+
+    VesselImo:
+      name: imo
+      in: query
+      required: false
+      schema:
+        type: string
+
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: string
+
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: string
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    RateLimited:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+paths:
+
+  /containers/{tracking_number}:
+    get:
+      summary: Get container details
+      description: >
+        Fetches full tracking details for a container. If the container prefix is
+        shared across carriers, include shipping_line to avoid a 404 or wrong result.
+      operationId: getContainer
+      parameters:
+        - name: tracking_number
+          in: path
+          required: true
+          description: Full container number including the 4-letter prefix, e.g. MSCU1234567
+          schema:
+            type: string
+        - $ref: '#/components/parameters/ShippingLineOptional'
+      responses:
+        '200':
+          description: Container details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContainerResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /containers/bol/{bill_of_lading_number}:
+    get:
+      summary: Get container numbers from a bill of lading
+      description: >
+        Returns all container numbers linked to a bill of lading. shipping_line
+        is always required.
+      operationId: getContainersByBol
+      parameters:
+        - name: bill_of_lading_number
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/ShippingLineRequired'
+      responses:
+        '200':
+          description: Bill of lading details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BolResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /vessel/basic:
+    get:
+      summary: Basic live vessel tracking
+      description: Live position and navigation status. Identify by uuid, mmsi, or imo.
+      operationId: getVesselBasic
+      parameters:
+        - $ref: '#/components/parameters/VesselUuid'
+        - $ref: '#/components/parameters/VesselMmsi'
+        - $ref: '#/components/parameters/VesselImo'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Basic vessel details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VesselBasicResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /vessel/pro:
+    get:
+      summary: Pro live vessel tracking
+      description: >
+        Extends basic tracking with departure port, current draught, ATD, and timezone.
+      operationId: getVesselPro
+      parameters:
+        - $ref: '#/components/parameters/VesselUuid'
+        - $ref: '#/components/parameters/VesselMmsi'
+        - $ref: '#/components/parameters/VesselImo'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Pro vessel details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VesselProResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /vessel/bulk:
+    get:
+      summary: Bulk live vessel tracking
+      description: Fetch live data for up to 100 vessels in one request.
+      operationId: getVesselBulk
+      parameters:
+        - $ref: '#/components/parameters/VesselUuid'
+        - $ref: '#/components/parameters/VesselMmsi'
+        - $ref: '#/components/parameters/VesselImo'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Bulk vessel details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VesselBulkResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /vessel/finder:
+    get:
+      summary: Vessel finder
+      description: Search static vessel registry by name, type, flag, tonnage, dimensions, or year built.
+      operationId: findVessel
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fuzzy
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Set to 1 to enable fuzzy name matching
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: type_specific
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: country_iso
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: gross_tonnage_min
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: gross_tonnage_max
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: deadweight_min
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: deadweight_max
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: length_min
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: length_max
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: breadth_min
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: breadth_max
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: year_built_min
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: year_built_max
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: next
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Vessel search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VesselFinderResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /vessel/specs:
+    get:
+      summary: Vessel specs
+      description: Static registry data for a specific vessel. Identify by uuid, mmsi, or imo.
+      operationId: getVesselSpecs
+      parameters:
+        - $ref: '#/components/parameters/VesselUuid'
+        - $ref: '#/components/parameters/VesselMmsi'
+        - $ref: '#/components/parameters/VesselImo'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Vessel specs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VesselSpecsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /port/find:
+    get:
+      summary: Port finder
+      description: Search ports by name, country, type, or lat/lon with radius.
+      operationId: findPort
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: lat
+          in: query
+          required: false
+          schema:
+            type: number
+          description: Latitude for proximity search (pair with lon and radius)
+        - name: lon
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: radius
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: country_iso
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: port_type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fuzzy
+          in: query
+          required: false
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Port details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /terminal:
+    get:
+      summary: Terminal finder
+      description: Returns terminal details for a given UN/LOCODE.
+      operationId: getTerminal
+      parameters:
+        - name: unlocode
+          in: query
+          required: false
+          schema:
+            type: string
+          description: UN/LOCODE for the terminal, e.g. CNCQI
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Terminal details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerminalResponse'
+        '400':
+          description: Bad request — unlocode must contain at least 2 characters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api_key/stats:
+    get:
+      summary: Get API key usage stats
+      description: Returns plan name and request counts for the authenticated API key.
+      operationId: getApiKeyStats
+      responses:
+        '200':
+          description: API key stats retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyStatsResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
