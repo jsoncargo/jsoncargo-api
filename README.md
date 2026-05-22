@@ -33,7 +33,7 @@ curl -X GET "http://api.jsoncargo.com/api/v1/containers/CCLU1234567?shipping_lin
 
 ## Using the OpenAPI spec
 
-Import `openapi.yaml` directly into Postman: New Collection > Import > select the file. Postman will generate a request for each endpoint with all parameters pre-filled.
+Import `openapi.yaml` directly into Postman: click **Import** at the top of the Collections sidebar (or **File > Import**), select the file, and confirm. Postman will generate a request for each endpoint with all parameters pre-filled.
 
 You can also use it with any OpenAPI-compatible tool (Insomnia, Swagger UI, code generators, etc.).
 
